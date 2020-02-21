@@ -8,12 +8,12 @@ package com.frost.entitylocker.lockers;
 public class ThreadUnsafeEntityLocker<T> implements EntityLocker<T> {
 
   @Override
-  public void lockEntity(T id) throws InterruptedException {
+  public void lockId(T entityId) {
     //Do nothing, added just for testing
   }
 
   @Override
-  public void unlockEntity(T id) {
+  public void unlockId(T entityId) {
     //Do nothing, added just for testing
   }
 }

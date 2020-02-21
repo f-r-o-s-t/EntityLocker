@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.frost.entitylocker.executors.ProtectedCodeExecutor;
 import com.frost.entitylocker.lockers.EntityLocker;
 import org.junit.Test;
 
@@ -17,20 +18,19 @@ import static org.junit.Assert.assertTrue;
 
 public class EntityLockerValidationTests {
 
-  /*
-   For test we just suppose and check that concurrent execution at least twice faster than single thread
-   and slower than unsafe execution
-   In reality on my machine:
-   unsafe execution time: 1103ms
-   single thread execution time: 11613ms
-   concurrent execution time: 1224ms
-  */
+  /**
+   * For test we just suppose and check that concurrent execution at least twice faster than single thread implementation and quite slower than unsafe execution.
+   * In reality on my machine:
+   * unsafe execution time: 1103ms
+   * single thread execution time: 11613ms
+   * concurrent execution time: 1224ms
+   */
   @Test(timeout = 30000)
   public void runConcurrentStressComparisionTest() {
     long unsafeTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getThreadUnsafeEntityLocker(),
         TestConfiguration.SLEEP_AND_DONT_CHECK_RESULTS)); //We don't check results for Unsafe implementation
     System.out.println("unsafe execution time: " + unsafeTime + "ms");
-    long singleTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getOneThreadLocker(),
+    long singleTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getSingleThreadLocker(),
         TestConfiguration.SLEEP_AND_CHECK_RESULTS));
     System.out.println("single thread execution time: " + singleTime + "ms");
     long concurrentTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getThreadSafeEntityLocker(),
@@ -39,11 +39,11 @@ public class EntityLockerValidationTests {
     assertTrue("Single thread should be at least twice slower than concurrent execution", singleTime > concurrentTime * 2);
   }
 
-  /*
-   Just run 10 threads that concurrently updating array using ProtectedCodeRunner backed by our ThreadSafeEntityLock.
-   Each thread increments each element of array 10000(factor) times without sleeping between. Than we check
-   that each element of array equals to threadCount*factor
-  */
+  /**
+   * Just run 10 threads that concurrently updating array using ProtectedCodeRunner backed by our ThreadSafeEntityLock.
+   * Each thread increments each element of array 10000(factor) times without sleeping between.
+   * Than we check that each element of array equals to threadCount*factor
+   */
   @Test(timeout = 5000)
   public void runConcurrentStressTest() throws Exception {
     TestConfiguration config = new TestConfiguration(true, false, 10000, 10, 100);

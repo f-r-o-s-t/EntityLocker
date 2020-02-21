@@ -7,7 +7,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * EntityLocker implementation based on ConcurrentHashMap.
+ * EntityLocker thread safe implementation based on ConcurrentHashMap.
  *
  * @param <T> type of Entity key
  **/
@@ -24,13 +24,13 @@ public class ThreadSafeEntityLocker<T> implements EntityLocker<T> {
   }
 
   @Override
-  public void lockEntity(T id) throws InterruptedException {
-    Objects.requireNonNull(id, "Entity id must not be null");
+  public void lockId(T entityId) throws InterruptedException {
+    Objects.requireNonNull(entityId, "Entity id must not be null");
     boolean locked;
     do {
-      Lock lock = lockingMap.computeIfAbsent(id, (key) -> new ReentrantLock());
+      Lock lock = lockingMap.computeIfAbsent(entityId, (key) -> new ReentrantLock());
       lock.lockInterruptibly();
-      locked = lock == lockingMap.get(id); //Check that we still use actual lock
+      locked = lock == lockingMap.get(entityId); //Check that we still use actual lock
       if (!locked) {
         lock.unlock();
       }
@@ -38,11 +38,11 @@ public class ThreadSafeEntityLocker<T> implements EntityLocker<T> {
   }
 
   @Override
-  public void unlockEntity(T id) {
-    Objects.requireNonNull(id, "Entity id must not be null");
-    Lock lock = lockingMap.get(id);
+  public void unlockId(T entityId) {
+    Objects.requireNonNull(entityId, "Entity id must not be null");
+    Lock lock = lockingMap.get(entityId);
     if (lock != null) {
-      lockingMap.remove(id); // Remove used lock to avoid memory leaks
+      lockingMap.remove(entityId); // Remove used lock to avoid memory leaks
       lock.unlock();
     }
   }

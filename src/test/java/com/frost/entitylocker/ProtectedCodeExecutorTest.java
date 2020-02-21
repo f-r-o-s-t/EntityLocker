@@ -1,5 +1,6 @@
 package com.frost.entitylocker;
 
+import com.frost.entitylocker.executors.ProtectedCodeExecutor;
 import com.frost.entitylocker.lockers.EntityLocker;
 import org.junit.Test;
 

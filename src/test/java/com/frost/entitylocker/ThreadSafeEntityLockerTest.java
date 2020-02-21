@@ -20,11 +20,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-// ----- hour ---------
-//TODO try to simplify solution of runOnLocker
-//TODO reread code again and fix typos
-//TODO final commit
-
 public class ThreadSafeEntityLockerTest {
 
   final int FIRST_ENTITY_ID  = 10;
@@ -39,8 +34,8 @@ public class ThreadSafeEntityLockerTest {
 
   @Test(timeout = 100L)
   public void shouldLockAndUnlockProperly() throws Exception {
-    locker.lockEntity(FIRST_ENTITY_ID);
-    locker.unlockEntity(FIRST_ENTITY_ID);
+    locker.lockId(FIRST_ENTITY_ID);
+    locker.unlockId(FIRST_ENTITY_ID);
   }
 
   @Test(timeout = 1000L)
@@ -50,21 +45,21 @@ public class ThreadSafeEntityLockerTest {
 
     Thread t = new Thread(() -> {
       try {
-        locker.lockEntity(SECOND_ENTITY_ID);
+        locker.lockId(SECOND_ENTITY_ID);
         latch.countDown();
         latch.await();
         result.incrementAndGet();
-        locker.unlockEntity(SECOND_ENTITY_ID);
+        locker.unlockId(SECOND_ENTITY_ID);
       } catch (InterruptedException ignored) {
       }
     });
     t.start();
 
-    locker.lockEntity(FIRST_ENTITY_ID);
+    locker.lockId(FIRST_ENTITY_ID);
     latch.countDown();
     latch.await();
     result.incrementAndGet();
-    locker.unlockEntity(FIRST_ENTITY_ID);
+    locker.unlockId(FIRST_ENTITY_ID);
     t.join();
     assertEquals("Should be incremented twice in different threads", 2, result.get());
   }
@@ -84,12 +79,12 @@ public class ThreadSafeEntityLockerTest {
             try {
               latch.countDown();
               latch.await();
-              locker.lockEntity(FIRST_ENTITY_ID);
+              locker.lockId(FIRST_ENTITY_ID);
               if (isRunning.get()) failed.set(true);
               isRunning.set(true);
               Thread.sleep(10);
               isRunning.set(false);
-              locker.unlockEntity(FIRST_ENTITY_ID);
+              locker.unlockId(FIRST_ENTITY_ID);
             } catch (InterruptedException ignored) {
             }
             return 1L;
@@ -101,26 +96,26 @@ public class ThreadSafeEntityLockerTest {
   }
 
   @Test(timeout = 1000L)
-  public void shouldAcquireReentrantLocking() throws Exception {
+  public void shouldAcquireReentrantLock() throws Exception {
     int result = 0;
-    locker.lockEntity(FIRST_ENTITY_ID);
+    locker.lockId(FIRST_ENTITY_ID);
     result++;
-    locker.lockEntity(FIRST_ENTITY_ID);
+    locker.lockId(FIRST_ENTITY_ID);
     result++;
-    locker.unlockEntity(FIRST_ENTITY_ID);
-    locker.unlockEntity(FIRST_ENTITY_ID);
+    locker.unlockId(FIRST_ENTITY_ID);
+    locker.unlockId(FIRST_ENTITY_ID);
     assertEquals("Should be incremented twice under the first and the second lock", 2, result);
   }
 
   @Test(timeout = 1000L)
-  public void shouldExitWhenInterruptMethodCalled() throws Exception {
+  public void shouldThrowExceptionWhenInterruptMethodCalled() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
 
-    locker.lockEntity(FIRST_ENTITY_ID);
+    locker.lockId(FIRST_ENTITY_ID);
 
     Thread second = new Thread(() -> {
       try {
-        locker.lockEntity(FIRST_ENTITY_ID);
+        locker.lockId(FIRST_ENTITY_ID);
       } catch (InterruptedException e) {
         latch.countDown();
       }
@@ -131,22 +126,22 @@ public class ThreadSafeEntityLockerTest {
   }
 
   @Test
-  public void shouldCleanTheMapAfterExecution() throws Exception {
+  public void shouldCleanBackingMapAfterExecution() throws Exception {
     ConcurrentMap<Integer, Lock> map    = new ConcurrentHashMap<>();
     EntityLocker<Integer>        locker = new ThreadSafeEntityLocker<>(map);
-    locker.lockEntity(FIRST_ENTITY_ID);
-    locker.unlockEntity(FIRST_ENTITY_ID);
+    locker.lockId(FIRST_ENTITY_ID);
+    locker.unlockId(FIRST_ENTITY_ID);
     assertEquals("We should have clean backing map to avoid memory leaks", 0, map.size());
   }
 
   @Test(expected = NullPointerException.class)
   public void shouldThrowNullPointerExceptionIfIdIsNullOnLock() throws InterruptedException {
-    locker.lockEntity(null);
+    locker.lockId(null);
   }
 
   @Test(expected = NullPointerException.class)
   public void shouldThrowNullPointerExceptionIfIdIsNullOnUnlock() {
-    locker.unlockEntity(null);
+    locker.unlockId(null);
   }
 
 }

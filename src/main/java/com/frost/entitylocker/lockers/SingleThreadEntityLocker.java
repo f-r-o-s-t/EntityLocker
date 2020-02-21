@@ -8,17 +8,17 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @param <T> type of Entity key
  */
-public class OneThreadEntityLocker<T> implements EntityLocker<T> {
+public class SingleThreadEntityLocker<T> implements EntityLocker<T> {
 
   final Lock lock = new ReentrantLock();
 
   @Override
-  public void lockEntity(T id) throws InterruptedException {
+  public void lockId(T entityId) throws InterruptedException {
     lock.lockInterruptibly();
   }
 
   @Override
-  public void unlockEntity(T id) {
+  public void unlockId(T entityId) {
     lock.unlock();
   }
 }

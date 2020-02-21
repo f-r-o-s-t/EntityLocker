@@ -1,7 +1,7 @@
 package com.frost.entitylocker;
 
 import com.frost.entitylocker.lockers.EntityLocker;
-import com.frost.entitylocker.lockers.OneThreadEntityLocker;
+import com.frost.entitylocker.lockers.SingleThreadEntityLocker;
 import com.frost.entitylocker.lockers.ThreadSafeEntityLocker;
 import com.frost.entitylocker.lockers.ThreadUnsafeEntityLocker;
 
@@ -10,8 +10,8 @@ import com.frost.entitylocker.lockers.ThreadUnsafeEntityLocker;
  */
 public class EntityLockerFactory {
 
-  public static <T> EntityLocker<T> getOneThreadLocker() {
-    return new OneThreadEntityLocker<>();
+  public static <T> EntityLocker<T> getSingleThreadLocker() {
+    return new SingleThreadEntityLocker<>();
   }
 
   public static <T> EntityLocker<T> getThreadSafeEntityLocker() {
