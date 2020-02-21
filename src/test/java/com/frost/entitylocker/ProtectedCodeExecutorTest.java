@@ -12,9 +12,7 @@ public class ProtectedCodeExecutorTest {
     EntityLocker<Integer>          locker   = EntityLockerFactory.getThreadSafeEntityLocker();
     ProtectedCodeExecutor<Integer> executor = new ProtectedCodeExecutor<>(locker);
     boolean[]                      executed = new boolean[1];
-    executor.runProtectedCodeOnEntity(1, () -> {
-      executed[0] = true;
-    });
+    executor.runProtectedCodeOnEntity(1, () -> executed[0] = true);
     assertTrue(executed[0]);
   }
 

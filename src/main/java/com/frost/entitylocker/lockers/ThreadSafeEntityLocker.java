@@ -26,12 +26,12 @@ public class ThreadSafeEntityLocker<T> implements EntityLocker<T> {
   @Override
   public void lockEntity(T id) throws InterruptedException {
     Objects.requireNonNull(id, "Entity id must not be null");
-    boolean locked = false;
+    boolean locked;
     do {
       Lock lock = lockingMap.computeIfAbsent(id, (key) -> new ReentrantLock());
       lock.lockInterruptibly();
       locked = lock == lockingMap.get(id); //Check that we still use actual lock
-      if (!locked) { //TODO one style for these places
+      if (!locked) {
         lock.unlock();
       }
     } while (!locked);

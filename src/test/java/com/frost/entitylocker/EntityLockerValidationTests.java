@@ -25,10 +25,10 @@ public class EntityLockerValidationTests {
    single thread execution time: 11613ms
    concurrent execution time: 1224ms
   */
-  @Test
+  @Test(timeout = 30000)
   public void runConcurrentStressComparisionTest() {
     long unsafeTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getThreadUnsafeEntityLocker(),
-        TestConfiguration.SLEEP_AND_DONT_CHECK_RESULTS));
+        TestConfiguration.SLEEP_AND_DONT_CHECK_RESULTS)); //We don't check results for Unsafe implementation
     System.out.println("unsafe execution time: " + unsafeTime + "ms");
     long singleTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getOneThreadLocker(),
         TestConfiguration.SLEEP_AND_CHECK_RESULTS));
@@ -44,7 +44,7 @@ public class EntityLockerValidationTests {
    Each thread increments each element of array 10000(factor) times without sleeping between. Than we check
    that each element of array equals to threadCount*factor
   */
-  @Test
+  @Test(timeout = 5000)
   public void runConcurrentStressTest() throws Exception {
     TestConfiguration config = new TestConfiguration(true, false, 10000, 10, 100);
     runValidationTest(EntityLockerFactory.getThreadSafeEntityLocker(), config);
@@ -56,6 +56,7 @@ public class EntityLockerValidationTests {
     List<Future<Long>>             results = new ArrayList<>();
     ProtectedCodeExecutor<Integer> runner  = new ProtectedCodeExecutor<>(locker);
 
+    // Run working threads
     for (int i = 0; i < config.threadCount; i++) {
       results.add(service.submit(() -> {
         for (int j = 0; j < config.arraySize * config.factor; j++) {
@@ -70,6 +71,8 @@ public class EntityLockerValidationTests {
         return 0L;
       }));
     }
+
+    // waiting results
     for (Future<Long> f : results) {
       f.get();
     }
@@ -78,6 +81,7 @@ public class EntityLockerValidationTests {
     int[] expected = new int[config.arraySize];
     Arrays.fill(expected, config.threadCount * config.factor);
 
+    // check the results if needed
     if (config.checkResult) {
       assertArrayEquals(expected, arr);
     }
@@ -90,7 +94,7 @@ public class EntityLockerValidationTests {
       code.call();
       return System.currentTimeMillis() - current;
     } catch (Exception e) {
-      return -1;
+      throw new RuntimeException(e);
     }
   }
 

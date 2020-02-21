@@ -136,7 +136,7 @@ public class ThreadSafeEntityLockerTest {
     EntityLocker<Integer> locker = new ThreadSafeEntityLocker<>(map);
     locker.lockEntity(FIRST_ENTITY_ID);
     locker.unlockEntity(FIRST_ENTITY_ID);
-    assertEquals("We should have clean backmap to avoid memory leaks", 0, map.size());
+    assertEquals("We should have clean backing map to avoid memory leaks", 0, map.size());
   }
 
   @Test(expected = NullPointerException.class)
@@ -145,7 +145,7 @@ public class ThreadSafeEntityLockerTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void shouldThrowNullPointerExceptionIfIdIsNullOnUnlock() throws InterruptedException {
+  public void shouldThrowNullPointerExceptionIfIdIsNullOnUnlock() {
     locker.unlockEntity(null);
   }
 
