@@ -27,7 +27,7 @@ import static org.junit.Assert.assertFalse;
 
 public class ThreadSafeEntityLockerTest {
 
-  final int FIRST_ENTITY_ID = 10;
+  final int FIRST_ENTITY_ID  = 10;
   final int SECOND_ENTITY_ID = 11;
 
   EntityLocker<Integer> locker;
@@ -45,8 +45,8 @@ public class ThreadSafeEntityLockerTest {
 
   @Test(timeout = 1000L)
   public void shouldWorkConcurrentlyWithDifferentEntities() throws Exception {
-    CountDownLatch latch = new CountDownLatch(2);
-    AtomicInteger result = new AtomicInteger(0);
+    CountDownLatch latch  = new CountDownLatch(2);
+    AtomicInteger  result = new AtomicInteger(0);
 
     Thread t = new Thread(() -> {
       try {
@@ -71,12 +71,12 @@ public class ThreadSafeEntityLockerTest {
 
   @Test(timeout = 1000L)
   public void shouldNotWorkConcurrentlyOnSameEntity() throws Exception {
-    final int THREAD_COUNT = 10;
-    AtomicBoolean isRunning = new AtomicBoolean(false);
-    AtomicBoolean failed = new AtomicBoolean(false);
-    ExecutorService service = Executors.newFixedThreadPool(THREAD_COUNT);
-    CountDownLatch     latch   = new CountDownLatch(THREAD_COUNT);
-    List<Future<Long>> results = new ArrayList<>();
+    final int          THREAD_COUNT = 10;
+    AtomicBoolean      isRunning    = new AtomicBoolean(false);
+    AtomicBoolean      failed       = new AtomicBoolean(false);
+    ExecutorService    service      = Executors.newFixedThreadPool(THREAD_COUNT);
+    CountDownLatch     latch        = new CountDownLatch(THREAD_COUNT);
+    List<Future<Long>> results      = new ArrayList<>();
 
     for (int i = 0; i < THREAD_COUNT; i++) {
       results.add(service.submit(
@@ -132,8 +132,8 @@ public class ThreadSafeEntityLockerTest {
 
   @Test
   public void shouldCleanTheMapAfterExecution() throws Exception {
-    ConcurrentMap<Integer, Lock> map = new ConcurrentHashMap<>();
-    EntityLocker<Integer> locker = new ThreadSafeEntityLocker<>(map);
+    ConcurrentMap<Integer, Lock> map    = new ConcurrentHashMap<>();
+    EntityLocker<Integer>        locker = new ThreadSafeEntityLocker<>(map);
     locker.lockEntity(FIRST_ENTITY_ID);
     locker.unlockEntity(FIRST_ENTITY_ID);
     assertEquals("We should have clean backing map to avoid memory leaks", 0, map.size());

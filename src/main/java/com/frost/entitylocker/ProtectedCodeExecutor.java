@@ -28,11 +28,10 @@ public class ProtectedCodeExecutor<T> {
    * Run protected code on Entity, guarantees that only one thread works with entity with id in each moment of time
    *
    * @param entityId entity id to lock
-   * @param body code that should be executed in protected mode
+   * @param body     code that should be executed in protected mode
    * @throws InterruptedException if locking was interrupted
-   * @throws ExecutionException code execution throws exception
+   * @throws ExecutionException   code execution throws exception
    * @throws NullPointerException in case entity id is null
-   *
    */
   public void runProtectedCodeOnEntity(T entityId, ProtectedCode body) throws ExecutionException, InterruptedException {
     locker.lockEntity(entityId);
