@@ -3,6 +3,7 @@ package com.frost.entitylocker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,17 +26,17 @@ public class EntityLockerValidationTests {
    concurrent execution time: 1224ms
   */
   @Test
-  public void runCriticalCodeOnEntityInParallel() {
-    long unsafeTime = measureExecutionTime(() -> runTestOnLocker(EntityLockerFactory.getThreadUnsafeEntityLocker(),
+  public void runConcurrentStressComparisionTest() {
+    long unsafeTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getThreadUnsafeEntityLocker(),
         TestConfiguration.SLEEP_AND_DONT_CHECK_RESULTS));
-    System.out.println("unsafe execution time: "+unsafeTime+"ms");
-    long singleTime = measureExecutionTime(() -> runTestOnLocker(EntityLockerFactory.getOneThreadLocker(),
+    System.out.println("unsafe execution time: " + unsafeTime + "ms");
+    long singleTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getOneThreadLocker(),
         TestConfiguration.SLEEP_AND_CHECK_RESULTS));
-    System.out.println("single thread execution time: "+singleTime+"ms");
-    long concurrentTime = measureExecutionTime(() -> runTestOnLocker(EntityLockerFactory.getThreadSafeEntityLocker(),
+    System.out.println("single thread execution time: " + singleTime + "ms");
+    long concurrentTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getThreadSafeEntityLocker(),
         TestConfiguration.SLEEP_AND_CHECK_RESULTS));
-    System.out.println("concurrent execution time: "+concurrentTime+"ms");
-    assertTrue("Single thread should be at least twice slower than concurrent execution", singleTime > concurrentTime*2);
+    System.out.println("concurrent execution time: " + concurrentTime + "ms");
+    assertTrue("Single thread should be at least twice slower than concurrent execution", singleTime > concurrentTime * 2);
   }
 
   /*
@@ -44,47 +45,49 @@ public class EntityLockerValidationTests {
    that each element of array equals to threadCount*factor
   */
   @Test
-  public void runStressConcurrentTest() throws Exception {
+  public void runConcurrentStressTest() throws Exception {
     TestConfiguration config = new TestConfiguration(true, false, 10000, 10, 100);
-    runTestOnLocker(EntityLockerFactory.getThreadSafeEntityLocker(), config);
+    runValidationTest(EntityLockerFactory.getThreadSafeEntityLocker(), config);
   }
 
-  public static void runTestOnLocker(EntityLocker<Integer> locker, TestConfiguration config) throws InterruptedException, ExecutionException {
-    final int[]        arr     = new int[config.arraySize];
-    ExecutorService    service = Executors.newFixedThreadPool(config.threadCount);
-    List<Future<Long>> results = new ArrayList<>();
-    ProtectedCodeRunner<Integer> runner = new ProtectedCodeRunner<>(locker);
+  public boolean runValidationTest(EntityLocker<Integer> locker, TestConfiguration config) throws ExecutionException, InterruptedException {
+    final int[]                    arr     = new int[config.arraySize];
+    ExecutorService                service = Executors.newFixedThreadPool(config.threadCount);
+    List<Future<Long>>             results = new ArrayList<>();
+    ProtectedCodeExecutor<Integer> runner  = new ProtectedCodeExecutor<>(locker);
 
     for (int i = 0; i < config.threadCount; i++) {
       results.add(service.submit(() -> {
         for (int j = 0; j < config.arraySize * config.factor; j++) {
-          final int curr = j % config.arraySize;
-          runner.runCriticalCodeOnEntity(curr, () -> {
-            arr[curr]++;
+          final int currId = j % config.arraySize;
+          runner.runProtectedCodeOnEntity(currId, () -> {
+            arr[currId]++;
             if (config.withSleep) {
-              try {
-                Thread.sleep(1);
-              } catch (InterruptedException e) {
-                e.printStackTrace();
-              }
+              Thread.sleep(1);
             }
           });
         }
         return 0L;
       }));
     }
-    for (Future<Long> f : results) f.get();
+    for (Future<Long> f : results) {
+      f.get();
+    }
     service.shutdown();
+
     int[] expected = new int[config.arraySize];
-    for (int i = 0; i < config.arraySize; i++) expected[i] = config.threadCount*config.factor;
-    System.out.println(Arrays.toString(arr));
-    if (config.checkResult) assertArrayEquals(expected, arr);
+    Arrays.fill(expected, config.threadCount * config.factor);
+
+    if (config.checkResult) {
+      assertArrayEquals(expected, arr);
+    }
+    return true;
   }
 
-  public static long measureExecutionTime(CodeToExecute body) {
+  public long measureExecutionTime(Callable<?> code) {
     try {
       long current = System.currentTimeMillis();
-      body.run();
+      code.call();
       return System.currentTimeMillis() - current;
     } catch (Exception e) {
       return -1;

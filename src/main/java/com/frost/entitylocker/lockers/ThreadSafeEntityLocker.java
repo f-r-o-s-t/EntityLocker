@@ -30,8 +30,8 @@ public class ThreadSafeEntityLocker<T> implements EntityLocker<T> {
     do {
       Lock lock = lockingMap.computeIfAbsent(id, (key) -> new ReentrantLock());
       lock.lockInterruptibly();
-      locked = lock == lockingMap.get(id);
-      if (!locked) {
+      locked = lock == lockingMap.get(id); //Check that we still use actual lock
+      if (!locked) { //TODO one style for these places
         lock.unlock();
       }
     } while (!locked);
@@ -42,7 +42,7 @@ public class ThreadSafeEntityLocker<T> implements EntityLocker<T> {
     Objects.requireNonNull(id, "Entity id must not be null");
     Lock lock = lockingMap.get(id);
     if (lock != null) {
-      lockingMap.remove(id);
+      lockingMap.remove(id); // Remove used lock to avoid memory leaks
       lock.unlock();
     }
   }

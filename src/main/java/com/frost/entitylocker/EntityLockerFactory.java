@@ -5,6 +5,9 @@ import com.frost.entitylocker.lockers.OneThreadEntityLocker;
 import com.frost.entitylocker.lockers.ThreadSafeEntityLocker;
 import com.frost.entitylocker.lockers.ThreadUnsafeEntityLocker;
 
+/**
+ * Class with utils factory methods for creating EntityLockers
+ */
 public class EntityLockerFactory {
 
   public static <T> EntityLocker<T> getOneThreadLocker() {

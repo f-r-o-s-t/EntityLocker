@@ -21,12 +21,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 // ----- hour ---------
-//TODO Added to Git and do first commit
-//TODO comment difficult parts
-// ----- hour ---------
-//TODO refactor solution tests && do what guys want to see robutness, culture of code and architecture
-//TODO write documentation
-//TODO publish solution until 11PM Friday
+//TODO try to simplify solution of runOnLocker
+//TODO reread code again and fix typos
+//TODO final commit
 
 public class ThreadSafeEntityLockerTest {
 
@@ -93,8 +90,7 @@ public class ThreadSafeEntityLockerTest {
               Thread.sleep(10);
               isRunning.set(false);
               locker.unlockEntity(FIRST_ENTITY_ID);
-            } catch (InterruptedException e) {
-              e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
             return 1L;
           }));
