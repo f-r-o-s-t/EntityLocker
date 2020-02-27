@@ -1,4 +1,4 @@
-package com.frost.entitylocker;
+package com.frost.entitylocker.executors;
 
 /**
  * Interface for running code in protected mode

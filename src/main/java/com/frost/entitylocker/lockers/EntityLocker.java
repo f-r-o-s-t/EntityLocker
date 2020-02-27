@@ -1,5 +1,7 @@
 package com.frost.entitylocker.lockers;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Reusable utility class that provides synchronization mechanism similar to row-level DB locking.
  * The class is supposed to be used by the components that are responsible for managing storage
@@ -24,6 +26,20 @@ public interface EntityLocker<T> {
    * @throws NullPointerException in case entity id is null
    */
   void lockId(T entityId) throws InterruptedException;
+
+  /**
+   * @param entityId entity id to lock
+   * @param timeout  the time to wait for the lock
+   * @param timeUnit the time unit of the timeout argument
+   * @return {@code true} if the lock was free and was acquired by the
+   * current thread, or the lock was already held by the current
+   * thread; and {@code false} if the waiting time elapsed before
+   * the lock could be acquired
+   * @throws InterruptedException     if locking was interrupted
+   * @throws NullPointerException     in case entity id is null
+   * @throws IllegalArgumentException if timeout less than zero
+   */
+  boolean tryLockId(T entityId, long timeout, TimeUnit timeUnit) throws InterruptedException;
 
   /**
    * Unlock entity by id

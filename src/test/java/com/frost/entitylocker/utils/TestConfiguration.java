@@ -1,15 +1,15 @@
-package com.frost.entitylocker;
+package com.frost.entitylocker.utils;
 
 public class TestConfiguration {
 
-  static TestConfiguration SLEEP_AND_CHECK_RESULTS      = new TestConfiguration(true, true, 100);
-  static TestConfiguration SLEEP_AND_DONT_CHECK_RESULTS = new TestConfiguration(false, true, 100);
+  public static TestConfiguration SLEEP_AND_CHECK_RESULTS      = new TestConfiguration(true, true, 100);
+  public static TestConfiguration SLEEP_AND_DONT_CHECK_RESULTS = new TestConfiguration(false, true, 100);
 
-  final boolean checkResult;
-  final boolean withSleep;
-  final int     factor;
-  final int     threadCount;
-  final int     arraySize;
+  public final boolean checkResult;
+  public final boolean withSleep;
+  public final int     factor;
+  public final int     threadCount;
+  public final int     arraySize;
 
   public TestConfiguration(boolean checkResult, boolean withSleep, int factor, int threadCount, int arraySize) {
     this.checkResult = checkResult;
