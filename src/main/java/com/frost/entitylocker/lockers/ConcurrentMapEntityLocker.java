@@ -25,11 +25,17 @@ public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
     this.lockingMap = lockingMap;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void lockId(T entityId) throws InterruptedException {
     lockIdInternal(entityId, NO_WAITING);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean tryLockId(T entityId, long timeout, TimeUnit timeUnit) throws InterruptedException {
     if (timeout < 0) {
@@ -38,6 +44,9 @@ public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
     return lockIdInternal(entityId, timeUnit.toNanos(timeout));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void unlockId(T entityId) {
     Objects.requireNonNull(entityId, "Entity id must not be null");

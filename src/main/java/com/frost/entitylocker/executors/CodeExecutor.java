@@ -28,7 +28,7 @@ public interface CodeExecutor<T> {
    * @param milliseconds the time to wait
    * @param code         code that should be executed in protected mode
    * @return {@code true} if the code was executed and {@code false} if the waiting time elapsed before
-   * we have possibility to execute code in protected mode
+   *         we have possibility to execute code in protected mode
    * @throws InterruptedException     if locking was interrupted
    * @throws ExecutionException       if the execution threw an exception
    * @throws NullPointerException     in case entityId is null

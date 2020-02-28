@@ -17,14 +17,14 @@ public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
   private EntityLocker<T> locker;
 
   /**
-   * Constructs code executor base on default implementation of thread safe EntityLocker
+   * Constructs code executor based on default implementation of thread safe EntityLocker
    */
   public ProtectedCodeExecutor() {
     this(EntityLockerFactory.getConcurrentEntityLocker());
   }
 
   /**
-   * Constructs code executor based on provided locker
+   * Constructs code executor based on provided EntityLocker
    *
    * @param locker locker that used for locking entity by id
    * @throws NullPointerException in case locker is null
@@ -34,12 +34,18 @@ public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
     this.locker = locker;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void execute(T entityId, ProtectedCode code) throws ExecutionException, InterruptedException {
     locker.lockId(entityId);
     executeInternalAndUnlock(entityId, code);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean tryToExecute(T entityId, long milliseconds, ProtectedCode code) throws ExecutionException, InterruptedException {
     if (milliseconds < 0) {
