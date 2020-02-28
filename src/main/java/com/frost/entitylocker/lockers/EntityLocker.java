@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * I. Allow reentrant locking.
  * II. Allow the caller to specify timeout for locking an entity.
  *
- * @param <T> type of Entity key
+ * @param <T> type of Entity id
  */
 public interface EntityLocker<T> {
 

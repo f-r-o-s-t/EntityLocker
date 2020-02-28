@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * EntityLocker implementation based on one lock for all Entity ids with sequential execution of critical code
  *
- * @param <T> type of Entity key
+ * @param <T> type of Entity id
  */
 public class SequentialEntityLocker<T> implements EntityLocker<T> {
 

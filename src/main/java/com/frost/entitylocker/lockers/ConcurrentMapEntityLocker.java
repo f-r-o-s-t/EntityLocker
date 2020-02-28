@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * EntityLocker thread safe implementation based on ConcurrentHashMap.
  *
- * @param <T> type of Entity key
+ * @param <T> type of Entity id
  **/
 public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
 

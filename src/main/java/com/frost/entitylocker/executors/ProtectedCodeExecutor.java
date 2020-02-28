@@ -10,7 +10,7 @@ import com.frost.entitylocker.lockers.EntityLockerFactory;
 /**
  * Implementation of CodeExecutor that uses EntityLocker for running protected code
  *
- * @param <T> type of Entity key
+ * @param <T> type of Entity id
  */
 public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
 

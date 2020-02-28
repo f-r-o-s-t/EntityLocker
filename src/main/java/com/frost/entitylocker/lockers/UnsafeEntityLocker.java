@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * EntityLocker implementation that doesn't use locking, added for testing.
  *
- * @param <T> type of Entity key
+ * @param <T> type of Entity id
  */
 public class UnsafeEntityLocker<T> implements EntityLocker<T> {
 

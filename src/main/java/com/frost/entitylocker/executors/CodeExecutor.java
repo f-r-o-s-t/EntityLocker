@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Interface provides methods for running protected code on entity
  *
- * @param <T> type of Entity key
+ * @param <T> type of Entity id
  */
 public interface CodeExecutor<T> {
 
