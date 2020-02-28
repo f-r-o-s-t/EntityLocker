@@ -32,7 +32,7 @@ public interface CodeExecutor<T> {
    * @throws InterruptedException     if locking was interrupted
    * @throws ExecutionException       if the execution threw an exception
    * @throws NullPointerException     in case entityId is null
-   * @throws IllegalArgumentException if milliseconds count less than zero
+   * @throws IllegalArgumentException if milliseconds count is negative
    */
   boolean tryToExecute(T entityId, long milliseconds, ProtectedCode code) throws ExecutionException, InterruptedException;
 }

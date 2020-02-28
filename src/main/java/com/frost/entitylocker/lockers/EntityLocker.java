@@ -36,12 +36,12 @@ public interface EntityLocker<T> {
    * @param timeout  the time to wait for the lock
    * @param timeUnit the time unit of the timeout argument
    * @return {@code true} if the lock was free and was acquired by the
-   *         current thread, or the lock was already held by the current
-   *         thread; and {@code false} if the waiting time elapsed before
-   *         the lock could be acquired
+   * current thread, or the lock was already held by the current
+   * thread; and {@code false} if the waiting time elapsed before
+   * the lock could be acquired
    * @throws InterruptedException     if locking was interrupted
    * @throws NullPointerException     in case entity id is null
-   * @throws IllegalArgumentException if timeout less than zero
+   * @throws IllegalArgumentException if timeout is negative
    */
   boolean tryLockId(T entityId, long timeout, TimeUnit timeUnit) throws InterruptedException;
 
@@ -50,6 +50,7 @@ public interface EntityLocker<T> {
    *
    * @param entityId entity id to unlock
    * @throws NullPointerException in case entity id is null
+   * @throws IllegalMonitorStateException if the current thread does not hold this lock
    */
   void unlockId(T entityId);
 
