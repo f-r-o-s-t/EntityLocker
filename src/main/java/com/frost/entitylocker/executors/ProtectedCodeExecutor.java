@@ -8,7 +8,7 @@ import com.frost.entitylocker.lockers.EntityLocker;
 import com.frost.entitylocker.lockers.EntityLockerFactory;
 
 /**
- * Implementaion of CodeExecutor that uses EntityLocker for running protected code
+ * Implementation of CodeExecutor that uses EntityLocker for running protected code
  *
  * @param <T> type of Entity key
  */
@@ -37,7 +37,7 @@ public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
   @Override
   public void execute(T entityId, ProtectedCode code) throws ExecutionException, InterruptedException {
     locker.lockId(entityId);
-    executeInternal(entityId, code);
+    executeInternalAndUnlock(entityId, code);
   }
 
   @Override
@@ -47,12 +47,12 @@ public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
     }
     boolean locked = locker.tryLockId(entityId, milliseconds, TimeUnit.MILLISECONDS);
     if (locked) {
-      executeInternal(entityId, code);
+      executeInternalAndUnlock(entityId, code);
     }
     return locked;
   }
 
-  private void executeInternal(T entityId, ProtectedCode code) throws ExecutionException {
+  private void executeInternalAndUnlock(T entityId, ProtectedCode code) throws ExecutionException {
     try {
       code.run();
     } catch (Exception e) {

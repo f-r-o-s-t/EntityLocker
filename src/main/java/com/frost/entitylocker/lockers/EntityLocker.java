@@ -14,6 +14,10 @@ import java.util.concurrent.TimeUnit;
  * 3. For any given entity, EntityLocker should guarantee that at most one thread executes protected code on that entity. If there’s a concurrent request to lock the same entity, the other thread should wait until the entity becomes available.
  * 4. EntityLocker should allow concurrent execution of protected code on different entities.
  *
+ * Bonus requirements (Implemented):
+ * I. Allow reentrant locking.
+ * II. Allow the caller to specify timeout for locking an entity.
+ *
  * @param <T> type of Entity key
  */
 public interface EntityLocker<T> {
@@ -32,9 +36,9 @@ public interface EntityLocker<T> {
    * @param timeout  the time to wait for the lock
    * @param timeUnit the time unit of the timeout argument
    * @return {@code true} if the lock was free and was acquired by the
-   * current thread, or the lock was already held by the current
-   * thread; and {@code false} if the waiting time elapsed before
-   * the lock could be acquired
+   *         current thread, or the lock was already held by the current
+   *         thread; and {@code false} if the waiting time elapsed before
+   *         the lock could be acquired
    * @throws InterruptedException     if locking was interrupted
    * @throws NullPointerException     in case entity id is null
    * @throws IllegalArgumentException if timeout less than zero
