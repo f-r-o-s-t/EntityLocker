@@ -94,7 +94,7 @@ public class EntityLockerValidationTests {
   /**
    * Same as runConcurrentStressTest but uses tryLock method to acquire lock on entity id
    */
-  @Test(timeout = 5000)
+  @Test(timeout = 10000)
   public void runTryLockConcurrentStressTest() throws Exception {
     TestConfiguration config = STRESS_TEST_CONFIG_BUILDER.withTryLock(true).build();
     runValidationTest(EntityLockerFactory.getConcurrentEntityLocker(), config);
