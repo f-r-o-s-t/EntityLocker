@@ -26,7 +26,8 @@ public class ProtectedCodeExecutorTest {
   @Test(expected = IllegalArgumentException.class)
   public void shouldThrowExceptionIfTimeoutLessThanZero() throws Exception {
     ProtectedCodeExecutor<Integer> executor = new ProtectedCodeExecutor<>();
-    executor.tryToExecute(1, -1, () -> System.out.println("Ignored"));
+    executor.tryToExecute(1, -1, () -> {
+    });
   }
 
 }

@@ -15,14 +15,22 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
 
   private final static long                   NO_WAITING = -1;
-  private              ConcurrentMap<T, Lock> lockingMap;
+  private final        ConcurrentMap<T, Lock> lockingMap;
 
+  /**
+   * Constructs new ConcurrentMapEntityLocker based on default ConcurrentMap implementation
+   */
   public ConcurrentMapEntityLocker() {
     lockingMap = new ConcurrentHashMap<>();
   }
 
-  public ConcurrentMapEntityLocker(ConcurrentMap<T, Lock> lockingMap) {
-    this.lockingMap = lockingMap;
+  /**
+   * Constructs new ConcurrentMapEntityLocker based on provided map
+   *
+   * @param concurrentMap map that will be used for storing locks
+   */
+  public ConcurrentMapEntityLocker(ConcurrentMap<T, Lock> concurrentMap) {
+    this.lockingMap = concurrentMap;
   }
 
   /**

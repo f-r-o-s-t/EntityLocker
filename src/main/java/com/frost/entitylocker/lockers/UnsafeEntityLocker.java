@@ -9,6 +9,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class UnsafeEntityLocker<T> implements EntityLocker<T> {
 
+  public UnsafeEntityLocker() {
+  }
+
   @Override
   public void lockId(T entityId) {
     //Do nothing, added just for testing

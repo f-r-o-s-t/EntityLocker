@@ -37,8 +37,11 @@ public class ConcurrentMapEntityLockerTest {
 
   @Test(timeout = 100L)
   public void shouldLockAndUnlockProperly() throws Exception {
+    int result = 0;
     locker.lockId(FIRST_ENTITY_ID);
+    result++;
     locker.unlockId(FIRST_ENTITY_ID);
+    assertEquals("Value should be updated inside lock", 1, result);
   }
 
   @Test(timeout = 100L)

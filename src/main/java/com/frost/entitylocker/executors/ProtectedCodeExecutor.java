@@ -14,7 +14,10 @@ import com.frost.entitylocker.lockers.EntityLockerFactory;
  */
 public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
 
-  private EntityLocker<T> locker;
+  /**
+   * Backing EntityLocker that used for running protected code
+   */
+  private final EntityLocker<T> locker;
 
   /**
    * Constructs code executor based on default implementation of thread safe EntityLocker

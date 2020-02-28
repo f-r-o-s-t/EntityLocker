@@ -124,7 +124,7 @@ public class EntityLockerValidationTests {
 
     // check the results if needed
     if (config.checkResult) {
-      assertArrayEquals(expected, arr);
+      assertArrayEquals("Array should contain threadCount*factor value in each element", expected, arr);
     }
     return true;
   }
