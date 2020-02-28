@@ -4,9 +4,9 @@ public class TestConfigurationBuilder {
 
   private boolean checkResult;
   private boolean withSleep;
-  private int     factor;
-  private int     threadCount;
-  private int     arraySize;
+  private int     factor      = 10;
+  private int     threadCount = 10;
+  private int     arraySize   = 10;
   private boolean tryLock;
 
   public TestConfigurationBuilder() {

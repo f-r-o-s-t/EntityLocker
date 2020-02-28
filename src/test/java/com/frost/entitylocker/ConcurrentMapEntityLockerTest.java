@@ -24,7 +24,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 //-----hour---------------
-//TODO check test names again
 //TODO refactor and publish
 
 public class ConcurrentMapEntityLockerTest {

@@ -51,21 +51,21 @@ public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
   private boolean lockIdInternal(T entityId, long nanoseconds) throws InterruptedException {
     Objects.requireNonNull(entityId, "Entity id must not be null");
     boolean locked;
+    long    timeout = System.nanoTime() + nanoseconds; //We use System.nanoTime() because System.currentTimeMillis() can produce negative time difference
     do {
-      //TODO System.nanoTime instead
       Lock lock = lockingMap.computeIfAbsent(entityId, (key) -> new ReentrantLock());
       if (nanoseconds == NO_WAITING) {
         lock.lockInterruptibly(); //We use lockInterruptibly to be able to handle interrupt method on the thread
-      } else { //TODO atata looks like the error, please fix it and write test if we got lock but not actual
-        if (!lock.tryLock(nanoseconds, TimeUnit.NANOSECONDS)) {
+      } else {
+        if (!lock.tryLock(timeout - System.nanoTime(), TimeUnit.NANOSECONDS)) {
           return false; //If we can't acquire the lock than just return false immediately
         }
       }
-      locked = lock == lockingMap.get(entityId); //Check that we still use actual lock
+      locked = lock == lockingMap.get(entityId); //Check that we still use the actual lock
       if (!locked) { // Release this lock if it was replaced in the backing map
         lock.unlock();
       }
-    } while (!locked); // Wait until we lock proper id successfully
+    } while (!locked); // Wait until we lock entity id successfully
     return true;
   }
 

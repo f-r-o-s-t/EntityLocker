@@ -24,11 +24,12 @@ import static org.junit.Assert.assertTrue;
 
 public class EntityLockerValidationTests {
 
-  public static TestConfiguration SLEEP_AND_CHECK_RESULTS      = new TestConfiguration(false, true, true, 100);
-  public static TestConfiguration SLEEP_AND_DONT_CHECK_RESULTS = new TestConfiguration(false, false, true, 100);
+  private static TestConfigurationBuilder DEFAULT_BUILDER              = new TestConfigurationBuilder().withSleep(true).withFactor(100);
+  public static  TestConfiguration        SLEEP_AND_CHECK_RESULTS      = DEFAULT_BUILDER.withTryLock(false).withCheckResult(true).build();
+  public static  TestConfiguration        SLEEP_AND_DONT_CHECK_RESULTS = DEFAULT_BUILDER.withTryLock(false).withCheckResult(false).build();
 
-  public static TestConfiguration TRYLOCK_SLEEP_AND_CHECK_RESULTS      = new TestConfiguration(true, true, true, 100);
-  public static TestConfiguration TRYLOCK_SLEEP_AND_DONT_CHECK_RESULTS = new TestConfiguration(true, false, true, 100);
+  public static TestConfiguration TRYLOCK_SLEEP_AND_CHECK_RESULTS      = DEFAULT_BUILDER.withTryLock(true).withCheckResult(true).build();
+  public static TestConfiguration TRYLOCK_SLEEP_AND_DONT_CHECK_RESULTS = DEFAULT_BUILDER.withTryLock(true).withCheckResult(false).build();
 
   public static TestConfigurationBuilder STRESS_TEST_CONFIG_BUILDER = new TestConfigurationBuilder()
       .withArraySize(100)
@@ -46,6 +47,7 @@ public class EntityLockerValidationTests {
    */
   @Test(timeout = 60000)
   public void checkExecutionTimeTest() {
+    System.out.println("------------Execution time when lockId method is used----------------");
     long unsafeTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getUnsafeEntityLocker(),
         SLEEP_AND_DONT_CHECK_RESULTS)); //We don't check results for Unsafe implementation
     System.out.println("unsafe execution time: " + unsafeTime + "ms");
@@ -64,6 +66,7 @@ public class EntityLockerValidationTests {
    */
   @Test(timeout = 60000)
   public void checkExecutionTimeWithTryLockTest() {
+    System.out.println("------------Execution time when tryLockId method is used----------------");
     long unsafeTime = measureExecutionTime(() -> runValidationTest(EntityLockerFactory.getUnsafeEntityLocker(),
         TRYLOCK_SLEEP_AND_DONT_CHECK_RESULTS)); //We don't check results for Unsafe implementation
     System.out.println("unsafe execution time: " + unsafeTime + "ms");
