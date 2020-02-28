@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 public class ProtectedCodeExecutorTest {
 
   @Test
-  public void shouldRunProtectedCodeOnEntity() throws Exception {
+  public void shouldExecuteCodeOnEntity() throws Exception {
     ProtectedCodeExecutor<Integer> executor = new ProtectedCodeExecutor<>();
     boolean[]                      executed = new boolean[1];
     executor.execute(1, () -> executed[0] = true);
@@ -16,7 +16,7 @@ public class ProtectedCodeExecutorTest {
   }
 
   @Test
-  public void shouldRunProtectedCodeOnEntityTryToExecuteREFACTOR() throws Exception {
+  public void shouldTryToExecuteCodeOnEntity() throws Exception {
     ProtectedCodeExecutor<Integer> executor = new ProtectedCodeExecutor<>();
     boolean[]                      executed = new boolean[1];
     executor.tryToExecute(1, 100, () -> executed[0] = true);
@@ -24,7 +24,7 @@ public class ProtectedCodeExecutorTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void shouldThrowExceptionIfMillisecndsLessThanZero() throws Exception {
+  public void shouldThrowExceptionIfTimeoutLessThanZero() throws Exception {
     ProtectedCodeExecutor<Integer> executor = new ProtectedCodeExecutor<>();
     executor.tryToExecute(1, -1, () -> System.out.println("Ignored"));
   }

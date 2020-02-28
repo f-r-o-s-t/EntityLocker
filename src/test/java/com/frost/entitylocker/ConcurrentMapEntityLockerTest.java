@@ -24,10 +24,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 //-----hour---------------
-//TODO make TestConfiguration more clean
-//-----hour---------------
-//TODO refactor validation tests
-//-----hour---------------
 //TODO check test names again
 //TODO refactor and publish
 
@@ -50,13 +46,14 @@ public class ConcurrentMapEntityLockerTest {
   }
 
   @Test(timeout = 100L)
-  public void shouldLockOnTimeAndUnlockProperly() throws Exception {
-    assertTrue("Should get lock and return true", locker.tryLockId(FIRST_ENTITY_ID, 50, TimeUnit.MILLISECONDS));
+  public void shouldLockOnTimeAndReturnTrue() throws Exception {
+    boolean locked = locker.tryLockId(FIRST_ENTITY_ID, 50, TimeUnit.MILLISECONDS);
+    assertTrue("Should acquire lock and return true", locked);
     locker.unlockId(FIRST_ENTITY_ID);
   }
 
   @Test(timeout = 1000L)
-  public void shouldLockANdUnlockOnTime() throws Exception {
+  public void shouldReturnFalseWhenTimeoutExceed() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
 
     Thread t = new Thread(() -> {
