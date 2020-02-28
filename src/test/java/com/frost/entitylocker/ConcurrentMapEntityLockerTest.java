@@ -23,9 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-//-----hour---------------
-//TODO refactor and publish
-
 public class ConcurrentMapEntityLockerTest {
 
   final int FIRST_ENTITY_ID  = 10;
