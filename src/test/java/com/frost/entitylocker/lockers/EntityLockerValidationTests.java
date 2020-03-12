@@ -1,4 +1,4 @@
-package com.frost.entitylocker;
+package com.frost.entitylocker.lockers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,8 +13,6 @@ import java.util.concurrent.Future;
 
 import com.frost.entitylocker.executors.CodeExecutor;
 import com.frost.entitylocker.executors.ProtectedCodeExecutor;
-import com.frost.entitylocker.lockers.EntityLocker;
-import com.frost.entitylocker.lockers.EntityLockerFactory;
 import com.frost.entitylocker.utils.TestConfiguration;
 import com.frost.entitylocker.utils.TestConfigurationBuilder;
 import org.junit.Test;

@@ -43,7 +43,13 @@ public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
   @Override
   public void execute(T entityId, ProtectedCode code) throws ExecutionException, InterruptedException {
     locker.lockId(entityId);
-    executeInternalAndUnlock(entityId, code);
+    try {
+      code.run();
+    } catch (Exception e) {
+      throw new ExecutionException(e);
+    } finally {
+      locker.unlockId(entityId);
+    }
   }
 
   /**
@@ -56,19 +62,15 @@ public class ProtectedCodeExecutor<T> implements CodeExecutor<T> {
     }
     boolean locked = locker.tryLockId(entityId, milliseconds, TimeUnit.MILLISECONDS);
     if (locked) {
-      executeInternalAndUnlock(entityId, code);
+      try {
+        code.run();
+      } catch (Exception e) {
+        throw new ExecutionException(e);
+      } finally {
+        locker.unlockId(entityId);
+      }
     }
     return locked;
-  }
-
-  private void executeInternalAndUnlock(T entityId, ProtectedCode code) throws ExecutionException {
-    try {
-      code.run();
-    } catch (Exception e) {
-      throw new ExecutionException(e);
-    } finally {
-      locker.unlockId(entityId);
-    }
   }
 
 }

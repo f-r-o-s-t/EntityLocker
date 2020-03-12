@@ -1,4 +1,4 @@
-package com.frost.entitylocker;
+package com.frost.entitylocker.lockers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +11,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
 
-import com.frost.entitylocker.lockers.ConcurrentMapEntityLocker;
-import com.frost.entitylocker.lockers.EntityLocker;
-import com.frost.entitylocker.lockers.EntityLockerFactory;
+import com.frost.entitylocker.lockers.ConcurrentMapEntityLocker.EntityLock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -131,6 +128,40 @@ public class ConcurrentMapEntityLockerTest {
     assertFalse("Only one thread should work on one entity", failed.get());
   }
 
+  @Test(timeout = 5000L)
+  public void shouldNotWorkConcurrentlyOnSameEntityRepentantly() throws Exception {
+    final int          THREAD_COUNT = 10;
+    AtomicBoolean      isRunning    = new AtomicBoolean(false);
+    AtomicBoolean      failed       = new AtomicBoolean(false);
+    ExecutorService    service      = Executors.newFixedThreadPool(THREAD_COUNT);
+    CountDownLatch     latch        = new CountDownLatch(THREAD_COUNT);
+    List<Future<Long>> results      = new ArrayList<>();
+
+    for (int i = 0; i < THREAD_COUNT; i++) {
+      results.add(service.submit(
+          () -> {
+            try {
+              latch.countDown();
+              latch.await();
+              locker.lockId(FIRST_ENTITY_ID);
+              locker.lockId(FIRST_ENTITY_ID);
+              if (isRunning.get()) failed.set(true);
+              isRunning.set(true);
+              Thread.sleep(10);
+              isRunning.set(false);
+              locker.unlockId(FIRST_ENTITY_ID);
+              Thread.sleep(1);
+              locker.unlockId(FIRST_ENTITY_ID);
+            } catch (InterruptedException ignored) {
+            }
+            return 1L;
+          }));
+    }
+    for (Future<Long> r : results) r.get();
+    service.shutdown();
+    assertFalse("Only one thread should work on one entity", failed.get());
+  }
+
   @Test(timeout = 1000L)
   public void shouldAcquireReentrantLock() throws Exception {
     int result = 0;
@@ -163,8 +194,8 @@ public class ConcurrentMapEntityLockerTest {
 
   @Test
   public void shouldCleanBackingMapAfterExecution() throws Exception {
-    ConcurrentMap<Integer, Lock> map    = new ConcurrentHashMap<>();
-    EntityLocker<Integer>        locker = new ConcurrentMapEntityLocker<>(map);
+    ConcurrentMap<Integer, EntityLock> map    = new ConcurrentHashMap<>();
+    EntityLocker<Integer>              locker = new ConcurrentMapEntityLocker<>(map);
     locker.lockId(FIRST_ENTITY_ID);
     locker.unlockId(FIRST_ENTITY_ID);
     assertEquals("We should have clean backing map to avoid memory leaks", 0, map.size());
@@ -183,6 +214,34 @@ public class ConcurrentMapEntityLockerTest {
   @Test(expected = IllegalArgumentException.class)
   public void shouldThrowExceptionIfTimeoutIsNegative() throws InterruptedException {
     locker.tryLockId(1, -1, TimeUnit.MILLISECONDS);
+  }
+
+  @Test(expected = IllegalMonitorStateException.class)
+  public void shouldThrowExceptionIfThreadDidNotLockEntityBeforeUnlock() throws InterruptedException {
+    locker.unlockId(FIRST_ENTITY_ID);
+  }
+
+  @Test(expected = IllegalMonitorStateException.class)
+  public void shouldThrowExceptionIfAnotherThreadDidNotLockEntityBeforeUnlock() throws InterruptedException {
+    CountDownLatch latch  = new CountDownLatch(1);
+    CountDownLatch latch2 = new CountDownLatch(1);
+    new Thread(() -> {
+      try {
+        locker.lockId(FIRST_ENTITY_ID);
+        latch.countDown();
+        latch2.await();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      } finally {
+        locker.unlockId(FIRST_ENTITY_ID);
+      }
+    }).start();
+    latch.await();
+    try {
+      locker.unlockId(FIRST_ENTITY_ID);
+    } finally {
+      latch2.countDown();
+    }
   }
 
 }

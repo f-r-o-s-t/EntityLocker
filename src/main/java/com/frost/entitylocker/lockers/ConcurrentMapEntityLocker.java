@@ -14,8 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
  **/
 public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
 
-  private final static long                   NO_WAITING = -1;
-  private final        ConcurrentMap<T, Lock> lockingMap;
+  private final static long                         NO_WAITING = -1;
+  private final        ConcurrentMap<T, EntityLock> lockingMap;
 
   /**
    * Constructs new ConcurrentMapEntityLocker based on default ConcurrentMap implementation
@@ -29,7 +29,7 @@ public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
    *
    * @param concurrentMap map that will be used for storing locks
    */
-  public ConcurrentMapEntityLocker(ConcurrentMap<T, Lock> concurrentMap) {
+  ConcurrentMapEntityLocker(ConcurrentMap<T, EntityLock> concurrentMap) {
     this.lockingMap = concurrentMap;
   }
 
@@ -58,10 +58,19 @@ public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
   @Override
   public void unlockId(T entityId) {
     Objects.requireNonNull(entityId, "Entity id must not be null");
-    Lock lock = lockingMap.get(entityId);
-    if (lock != null) {
-      lockingMap.remove(entityId); // Remove used lock to avoid memory leaks
-      lock.unlock();
+    EntityLock entityLock = lockingMap.get(entityId);
+    if (entityLock != null) {
+      if (entityLock.owner != Thread.currentThread()) {
+        throw new IllegalMonitorStateException();
+      }
+      if (entityLock.count == 1) {
+        lockingMap.remove(entityId); // Remove used lock to avoid memory leaks
+      } else {
+        entityLock.count--;
+      }
+      entityLock.lock.unlock();
+    } else {
+      throw new IllegalMonitorStateException();
     }
   }
 
@@ -70,7 +79,8 @@ public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
     boolean locked;
     long    timeout = System.nanoTime() + nanoseconds; //We use System.nanoTime() because System.currentTimeMillis() can produce negative time difference
     do {
-      Lock lock = lockingMap.computeIfAbsent(entityId, (key) -> new ReentrantLock());
+      EntityLock entityLock = lockingMap.computeIfAbsent(entityId, (key) -> new EntityLock());
+      Lock       lock       = entityLock.lock;
       if (nanoseconds == NO_WAITING) {
         lock.lockInterruptibly(); //We use lockInterruptibly to be able to handle interrupt method on the thread
       } else {
@@ -78,12 +88,27 @@ public class ConcurrentMapEntityLocker<T> implements EntityLocker<T> {
           return false; //If we can't acquire the lock than just return false immediately
         }
       }
-      locked = lock == lockingMap.get(entityId); //Check that we still use the actual lock
+      entityLock.count++;
+      entityLock.owner = Thread.currentThread();
+      locked = entityLock == lockingMap.get(entityId); //Check that we still use the actual lock
       if (!locked) { // Release this lock if it was replaced in the backing map
         lock.unlock();
       }
     } while (!locked); // Wait until we lock entity id successfully
     return true;
+  }
+
+  static class EntityLock {
+
+    final Lock lock;
+    Thread owner;
+    int    count;
+
+    public EntityLock() {
+      this.lock = new ReentrantLock();
+      this.owner = Thread.currentThread();
+      this.count = 0;
+    }
   }
 
 }
